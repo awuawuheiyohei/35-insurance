@@ -55,7 +55,8 @@ insurance/
 │   ├── validate.py             # 校验 CLI
 │   └── build.py                # 校验 → 聚合 → 产出给前端
 ├── web/                        # PWA 前端（零构建，原生 JS）
-└── tests/                      # 25 项行为测试，全部使用虚构 fixture
+├── scripts/demo_data.py        # 生成虚构演示数据，用于本地预览
+└── tests/                      # 28 项行为测试，全部使用虚构 fixture
 ```
 
 ---
@@ -77,6 +78,21 @@ PYTHONPATH=src .venv/bin/python -m insurance.build
 # 本地预览
 python3 -m http.server -d web 8000   # 打开 http://localhost:8000
 ```
+
+### 想先看看长什么样
+
+正式库是空的（见下节），但可以用**虚构数据**预览完整渲染效果：
+
+```bash
+PYTHONPATH=src .venv/bin/python scripts/demo_data.py      # 生成 3 个【示例·虚构】产品
+PYTHONPATH=src .venv/bin/python -m insurance.build
+python3 -m http.server -d web 8000
+
+PYTHONPATH=src .venv/bin/python scripts/demo_data.py --clean   # 用完清掉
+```
+
+演示数据覆盖了停售标记、数据过期标记、以及「本产品没有某项责任」这类 null 断言
+——后者同样强制要求溯源。**演示数据永远不进正式库。**
 
 ---
 
@@ -101,8 +117,9 @@ python3 -m http.server -d web 8000   # 打开 http://localhost:8000
 ## 现状与路线图
 
 - [x] 合规边界文档（法条核实到条文级）
-- [x] 数据 schema + 溯源校验器 + 合规 lint + 25 项测试
+- [x] 数据 schema + 溯源校验器 + 合规 lint + 28 项测试
 - [x] PWA 前端骨架（字段溯源弹层、保鲜度标记、无排序）
+- [x] 虚构演示数据脚本（用于走查渲染效果）
 - [ ] **导入首批产品数据（20-30 款，当前最大的空缺）**
 - [ ] ICP 备案后上线
 - [ ] 律师复核

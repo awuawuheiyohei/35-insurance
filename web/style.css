@@ -144,6 +144,8 @@ tr.critical-row th::after {
   position: fixed; inset: 0; background: rgba(15,23,42,.5);
   display: flex; align-items: flex-end; justify-content: center; z-index: 100;
 }
+/* .popover 的 display:flex 会盖掉 [hidden] 的 UA 默认样式，必须显式还原 */
+.popover[hidden] { display: none; }
 .popover-inner {
   background: var(--surface); border-radius: 14px 14px 0 0;
   padding: 20px 20px 28px; max-width: 640px; width: 100%;

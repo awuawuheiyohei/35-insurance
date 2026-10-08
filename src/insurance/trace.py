@@ -25,6 +25,10 @@ TRACED_EXACT: frozenset[str] = frozenset(
     }
 )
 
+# 费率表是一整张表，逐个年龄建 trace 没有意义。容器路径允许整体溯源，
+# 不参与 flatten 的叶子展开检查（见 _resolves）。
+TRACED_CONTAINERS: frozenset[str] = frozenset({"premium.byInsuredAge"})
+
 # 保鲜度阈值（天）
 FRESH_DAYS = 60
 STALE_DAYS = 180
@@ -77,7 +81,7 @@ def flatten(obj: Any, prefix: str = "") -> dict[str, Any]:
 
 
 def _requires_trace(path: str) -> bool:
-    if path in TRACED_EXACT:
+    if path in TRACED_EXACT or path in TRACED_CONTAINERS:
         return True
     return any(path.startswith(p) for p in TRACED_PREFIXES)
 
@@ -85,6 +89,23 @@ def _requires_trace(path: str) -> bool:
 def _is_meta(path: str) -> bool:
     """source.* 下的路径由 schema 自身约束，不纳入逐字段溯源。"""
     return path.startswith("source.")
+
+
+def _resolves(product: dict[str, Any], path: str) -> bool:
+    """路径在产品数据中真实存在。
+
+    与 flatten 不同，这里接受容器路径（如 premium.byInsuredAge），
+    因为费率表作为整体溯源比逐个年龄溯源更贴合实际。
+    """
+    if path in flatten(product):
+        return True
+    cur: Any = product
+    for seg in path.split("."):
+        if isinstance(cur, dict) and seg in cur:
+            cur = cur[seg]
+        else:
+            return False
+    return True
 
 
 def check_traces(product: dict[str, Any], today: _dt.date | None = None) -> TraceReport:
@@ -98,7 +119,7 @@ def check_traces(product: dict[str, Any], today: _dt.date | None = None) -> Trac
 
     # --- 1. 声明的出处必须真实存在 ---------------------------------------
     for path, tr in field_trace.items():
-        if path not in flat:
+        if not _resolves(product, path):
             report.issues.append(
                 TraceIssue(path, "error", f"fieldTrace 声明的路径在产品数据中不存在：{path}")
             )
@@ -121,6 +142,18 @@ def check_traces(product: dict[str, Any], today: _dt.date | None = None) -> Trac
     # --- 2. 需要溯源的字段不能漏 -----------------------------------------
     for path in flat:
         if _is_meta(path) or not _requires_trace(path):
+            continue
+        if path in field_trace:
+            report.traced_fields += 1
+        else:
+            report.required_fields += 1
+            report.issues.append(
+                TraceIssue(path, "error", f"缺少溯源：{path}")
+            )
+
+    # 容器路径不出现在 flatten 的叶子集合里，需单独检查
+    for path in sorted(TRACED_CONTAINERS):
+        if not _resolves(product, path):
             continue
         if path in field_trace:
             report.traced_fields += 1

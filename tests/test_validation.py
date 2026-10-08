@@ -64,8 +64,12 @@ def accident_product(**overrides):
     }
     # 自动为所有需要溯源的叶子字段生成 trace
     for path in flatten(p):
-        if path.startswith("coverage.") or path == "premium.byInsuredAge":
+        if path.startswith("coverage.") or path in ("premium.byInsuredAge", "underwriting.guaranteedRenewalYears"):
             p["source"]["fieldTrace"][path] = trace()
+    # 容器路径不会出现在 flatten 结果里，需显式补充
+    p["source"]["fieldTrace"]["premium.byInsuredAge"] = trace(
+        doc=0, quote="0-2周岁 100元，3-6周岁 120元（虚构费率表示例）"
+    )
     p.update(overrides)
     return p
 
@@ -109,6 +113,9 @@ def medical_product(**overrides):
             or path in ("premium.byInsuredAge", "underwriting.guaranteedRenewalYears", "underwriting.renewalNote")
         ):
             p["source"]["fieldTrace"][path] = trace()
+    p["source"]["fieldTrace"]["premium.byInsuredAge"] = trace(
+        doc=0, quote="0-17周岁 300元（虚构费率表示例）"
+    )
     p.update(overrides)
     return p
 
@@ -218,6 +225,28 @@ class TestTrace(unittest.TestCase):
         r = check_traces(medical_product())
         self.assertTrue(r.ok)
         self.assertGreaterEqual(r.traced_fields, 12)
+
+    def test_container_path_trace_required(self):
+        """回归：premium.byInsuredAge 是字典，flatten 后只出现 .0/.1 子路径，
+        若不单独处理容器路径，它会永远逃过必溯源检查。"""
+        p = accident_product()
+        del p["source"]["fieldTrace"]["premium.byInsuredAge"]
+        r = check_traces(p)
+        self.assertFalse(r.ok)
+        self.assertTrue(any(i.path == "premium.byInsuredAge" for i in r.errors))
+
+    def test_container_path_does_not_require_per_age_traces(self):
+        p = accident_product()
+        r = check_traces(p)
+        self.assertTrue(r.ok)
+        self.assertFalse(any(i.path.startswith("premium.byInsuredAge[") for i in r.issues))
+
+    def test_fabricated_container_path_fails(self):
+        p = accident_product()
+        p["source"]["fieldTrace"]["premium.fakeTable"] = trace()
+        r = check_traces(p)
+        self.assertFalse(r.ok)
+        self.assertTrue(any("premium.fakeTable" in i.message for i in r.errors))
 
 
 class TestFlatten(unittest.TestCase):

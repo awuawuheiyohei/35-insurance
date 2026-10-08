@@ -145,7 +145,8 @@ function render() {
       const v = fmtValue(row, product);
       const tracePath = row.special === 'renewalYears'
         ? 'underwriting.guaranteedRenewalYears' : row.path;
-      const hasTrace = !!get(product.source.fieldTrace, tracePath);
+      // fieldTrace 的键本身就是点号路径，必须整串直查，不能用 get() 拆分
+      const hasTrace = Object.prototype.hasOwnProperty.call(product.source.fieldTrace, tracePath);
       const cls = ['value'];
       if (v.cls) cls.push(v.cls);
       if (v.raw === null || v.raw === undefined) cls.push('undefined');
@@ -186,7 +187,8 @@ function showTrace(path) {
   const items = DATA.products.filter((p) => p.product.category === currentCat);
   const pop = document.getElementById('trace-popover');
   document.getElementById('popover-path').textContent = path;
-  const t = get(items[0]?.product.source.fieldTrace, path);
+  const ft = items[0]?.product.source.fieldTrace || {};
+  const t = Object.prototype.hasOwnProperty.call(ft, path) ? ft[path] : null;
 
   if (!t) {
     document.getElementById('popover-body').innerHTML =
@@ -197,8 +199,9 @@ function showTrace(path) {
 
   // 同一字段在不同产品里可能指向不同文档，全部列出。
   const rows = items.map(({ product }) => {
-    const tr = get(product.source.fieldTrace, path);
-    if (!tr) return '';
+    const map = product.source.fieldTrace || {};
+    if (!Object.prototype.hasOwnProperty.call(map, path)) return '';
+    const tr = map[path];
     const doc = product.source.documents[tr.docIndex];
     if (!doc) return '';
     const tier = { 1: '官网披露', 2: '中保协产品库', 3: '官方App截图' }[tr.tier] || tr.tier;
