@@ -18,9 +18,26 @@
 
 | 规则 | 实现方式 |
 |---|---|
-| 只做事实并排，不做优劣判断 | JSON Schema `additionalProperties: false`，**根本无法表达** `score`/`rank`/`recommended` 字段 |
-| 每个数值必须能点回原文 | `source.fieldTrace` 强制要求：路径 + 页码 + 原文片段，缺一个字段校验就失败 |
+| 只做事实并排，不做优劣判断 | 两套 JSON Schema 都是 `additionalProperties: false`，**根本无法表达** `score`/`rank`/`recommended` 字段 |
+| 每个数值必须能点回原文 | 产品用 `source.fieldTrace`（路径 + 页码 + 原文片段）；基准样本用 `premiumQuote`（费率表原文），缺一个校验就失败 |
 | 数据陈旧必须可见 | `verifiedAt` + 文档 `sha256`，超 60 天标黄、超 180 天标红 |
+
+## 两个功能模块
+
+| 模块 | 回答的问题 | 不回答的问题 |
+|---|---|---|
+| **条款对照** `index.html` | 这几款产品的条款写了什么，逐字对照 | 哪款更好 |
+| **保费基准** `benchmark.html` | 同样投保条件下，市场年保费落在什么区间 | 哪款更好、该买哪款 |
+
+第二个模块解决的是一个具体的认知缺口：**同样是 0 岁女宝 50 万保额，消费型年交
+1900–2600 元，带万能账户的储蓄混合型可以到 11500–12600 元，差 5 倍。**
+拿着一份报价单时没有基准，就无法判断它落在什么位置。
+
+```bash
+PYTHONPATH=src .venv/bin/python -m insurance.benchmark \
+    --age 0 --gender female --sum-insured 500000 \
+    --term lifetime --pay 30 --type consumption
+```
 
 ---
 
@@ -45,10 +62,13 @@ insurance/
 ├── docs/
 │   ├── 01-合规边界.md          # 法条引用 + 红线清单 + 渠道资质矩阵 + 自审清单
 │   └── 02-数据源与溯源规范.md   # 数据源分层、溯源模型、陈旧性治理、导入流程
-├── schema/product.schema.json  # 产品数据唯一 schema（同时承担合规约束）
+├── schema/
+│   ├── product.schema.json     # 产品数据唯一 schema（同时承担合规约束）
+│   └── benchmark.schema.json   # 保费基准 schema
 ├── data/
-│   ├── _template/              # 填写模板
-│   └── products/               # 真实产品数据（每条必须带官方出处）
+│   ├── _template/              # 产品填写模板
+│   ├── products/               # 真实产品数据（每条必须带官方出处）
+│   └── benchmarks/             # 保费基准组（每组 ≥3 个样本，每样本带费率表出处）
 ├── src/insurance/
 │   ├── trace.py                # 溯源交叉校验 + 保鲜度（schema 做不到的部分）
 │   ├── compliance.py           # 禁用词 lint
@@ -120,7 +140,9 @@ PYTHONPATH=src .venv/bin/python scripts/demo_data.py --clean   # 用完清掉
 - [x] 数据 schema + 溯源校验器 + 合规 lint + 28 项测试
 - [x] PWA 前端骨架（字段溯源弹层、保鲜度标记、无排序）
 - [x] 虚构演示数据脚本（用于走查渲染效果）
+- [x] **保费基准模块**：同条件下的市场保费区间查询（v1 第二功能）
 - [ ] **导入首批产品数据（20-30 款，当前最大的空缺）**
+- [ ] **导入首批保费基准组**（每组 ≥3 个样本）
 - [ ] ICP 备案后上线
 - [ ] 律师复核
 - [ ] 重疾险 / 教育金（第二期）

@@ -1,0 +1,86 @@
+/* 保额保费基准 —— 与条款对照页共用的 shell，独立模块样式 */
+
+.subnav { margin-top: 12px; display: flex; gap: 8px; }
+.subnav a {
+  color: #cbd5e1; text-decoration: none; font-size: 13.5px;
+  padding: 5px 12px; border: 1px solid #334155; border-radius: 6px;
+}
+.subnav a.current { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+
+/* --- 查询面板 --- */
+.query-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; margin: 24px 0;
+}
+.query-panel h2 { margin: 0 0 14px; font-size: 15px; }
+.query-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.query-grid label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--muted); }
+.query-grid input, .query-grid select {
+  padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 14px; background: #fff; color: var(--text);
+}
+.query-actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+.query-actions button {
+  padding: 9px 22px; border-radius: 6px; border: 1px solid var(--accent);
+  background: var(--accent); color: #fff; font-size: 14px; cursor: pointer;
+}
+.query-actions button.ghost { background: #fff; color: var(--text); border-color: var(--border); }
+#term-years-wrap input { width: 70px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; }
+
+/* --- 结果卡片 --- */
+.results { display: flex; flex-direction: column; gap: 20px; }
+
+.bm-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+.bm-card.unreliable { border-color: #fcd34d; }
+
+.bm-head {
+  background: #f1f5f9; padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap;
+}
+.bm-head h3 { margin: 0; font-size: 15px; }
+.bm-head .meta { font-size: 12px; color: var(--muted); }
+
+.bm-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+.stat { padding: 16px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat .k { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.stat .v { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; }
+.stat .v small { font-size: 12px; font-weight: 400; color: var(--muted); margin-left: 3px; }
+.stat.primary .v { color: var(--accent); }
+
+.bm-body { padding: 0; }
+.bm-samples { width: 100%; border-collapse: collapse; }
+.bm-samples th, .bm-samples td {
+  padding: 9px 14px; text-align: left; font-size: 13.5px;
+  border-bottom: 1px solid var(--border);
+}
+.bm-samples thead th { font-size: 12px; color: var(--muted); font-weight: 500; background: #fafbfc; }
+.bm-samples tbody tr:last-child td { border-bottom: none; }
+.premium-cell {
+  cursor: pointer; border-bottom: 1px dotted var(--accent);
+  font-variant-numeric: tabular-nums; font-weight: 600;
+}
+.lib-tag {
+  display: inline-block; font-size: 10.5px; padding: 1px 6px;
+  border-radius: 3px; background: #e0e7ff; color: #3730a3; margin-left: 6px;
+}
+
+.bm-notes { padding: 12px 16px; background: #fffbeb; border-top: 1px solid #fde68a; font-size: 12.5px; color: #78350f; }
+.bm-notes p { margin: 0 0 5px; }
+.bm-notes p:last-child { margin: 0; }
+.bm-notes .lbl { font-weight: 600; }
+
+.bm-scope { padding: 10px 16px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); }
+
+@media (max-width: 640px) {
+  .stat { padding: 12px; }
+  .stat .v { font-size: 17px; }
+  .bm-samples th, .bm-samples td { padding: 8px 10px; font-size: 12.5px; }
+}

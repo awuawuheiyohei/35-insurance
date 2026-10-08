@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>保额保费基准 · 少儿险条款事实对照</title>
+<meta name="description" content="同一投保条件下的市场保费区间对照，每个样本可溯源至官方费率表。不做产品优劣判断。">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="benchmark.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <h1>保额保费基准</h1>
+    <p class="tagline">同样条件下，市场上的年保费大概是多少 · 每个样本可溯源至官方费率表</p>
+    <nav class="subnav">
+      <a href="index.html">条款对照</a>
+      <a href="benchmark.html" class="current">保费基准</a>
+    </nav>
+  </div>
+</header>
+
+<div class="disclaimer-bar" role="note">
+  <div class="wrap" id="disclaimer-bar-text">
+    <strong>请先读这一段：</strong><span id="disclaimer-text"></span>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section class="query-panel">
+    <h2>查条件</h2>
+    <div class="query-grid">
+      <label>被保险人年龄
+        <input type="number" id="q-age" value="0" min="0" max="17">
+      </label>
+      <label>性别
+        <select id="q-gender">
+          <option value="female">女</option>
+          <option value="male">男</option>
+        </select>
+      </label>
+      <label>保额（万元）
+        <input type="number" id="q-sum" value="50" min="1" step="1">
+      </label>
+      <label>保障期限
+        <select id="q-term">
+          <option value="lifetime">保终身</option>
+          <option value="to_age_70">保至70岁</option>
+          <option value="term_N_years">保N年</option>
+        </select>
+      </label>
+      <label>缴费年期
+        <input type="number" id="q-pay" value="30" min="1" max="50">
+      </label>
+      <label>产品形态
+        <select id="q-type">
+          <option value="consumption">消费型（纯保障）</option>
+          <option value="savings">储蓄型（带账户/返还）</option>
+          <option value="bundle">全能险（打包）</option>
+        </select>
+      </label>
+    </div>
+    <div class="query-actions">
+      <button id="q-run">查询</button>
+      <button id="q-clear" class="ghost">清空条件</button>
+    </div>
+    <p class="muted small" id="term-years-wrap" hidden>
+      保N年 —— 请在下方补充年数：
+      <input type="number" id="q-term-years" value="30" min="1" max="60"> 年
+    </p>
+  </section>
+
+  <section id="results" class="results"></section>
+
+  <section id="empty" class="empty-state" hidden>
+    <h2>库内暂无基准数据</h2>
+    <p>尚未导入任何保费基准组。填写模板见 <code>data/benchmarks/_template.json</code>。</p>
+    <p class="muted">本项目不填入任何未经官方费率表核对的数据 —— 空库比错数据安全。</p>
+  </section>
+
+  <section class="legend">
+    <h3>这个模块回答什么、不回答什么</h3>
+    <ul>
+      <li><b>回答</b>：同样投保条件下，市场上的年保费落在什么区间。这纯粹是把公开费率表并排放在一起。</li>
+      <li><b>不回答</b>：哪款更好、该买哪款。页面按条件标签固定排序，不提供任何排序或评分功能。<!-- lint:ignore --></li>
+      <li><b>为什么需要它</b>：同样是 0 岁女宝 50 万保额，消费型年交可能 400-2000 元，带万能账户的储蓄混合型可以到 12000 元以上。拿着报价单时没有基准，就无法判断它落在什么位置。</li>
+      <li><b>样本量</b>：少于 3 条会自动标注「区间不可代表市场」。样本从哪来、有没有渠道限制，见每组底部的说明。</li>
+      <li>点任意样本可展开它的费率表出处与原文片段。</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <h4>免责声明</h4>
+    <p id="footer-disclaimer"></p>
+    <p class="small muted">
+      数据来源为保险公司官网公开披露的费率表。本工具为条款与费率信息的聚合展示，
+      不构成保险销售行为，不提供产品倾向性意见，也不提供投保入口。
+    </p>
+  </div>
+</footer>
+
+<div id="sample-popover" class="popover" hidden>
+  <div class="popover-inner">
+    <button class="popover-close" aria-label="关闭">×</button>
+    <h4 id="sample-name"></h4>
+    <div id="sample-body"></div>
+  </div>
+</div>
+
+<script src="benchmark.js"></script>
+</body>
+</html>

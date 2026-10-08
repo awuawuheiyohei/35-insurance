@@ -1,0 +1,60 @@
+{
+  "_README": "保费基准组模板。复制到 data/benchmarks/<id>.json 后逐字段替换。",
+  "_说明": [
+    "同一个文件里的所有样本必须满足同一组 condition，混了条件的区间没有意义",
+    "每个样本的保费必须抄自该产品官方费率表，并在 premiumQuote 里留下原文",
+    "样本少于 3 条会被自动标注为不可代表市场",
+    "不要写任何推荐/排名字段 —— schema 里根本没有这些字段，写了会校验失败"
+  ],
+
+  "id": "bm-<性别>-<年龄>-<保额>-<期限>-<形态>",
+  "label": "0岁女宝 / 50万 / 保终身 / 30年缴 / 消费型",
+
+  "condition": {
+    "ageFrom": 0,
+    "ageTo": 0,
+    "gender": "female",
+    "sumInsured": 500000,
+    "coverageTerm": "lifetime",
+    "termYears": null,
+    "payTerm": 30,
+    "productType": "consumption",
+    "hasDeathBenefit": false,
+    "hasMultipleClaim": false,
+    "childDiseaseExtraPct": 100
+  },
+
+  "samples": [
+    {
+      "productName": "<产品备案全称>",
+      "insurerName": "<保险公司全称>",
+      "annualPremium": 0,
+      "isInLibrary": false,
+      "source": {
+        "verifiedAt": "<YYYY-MM-DD>",
+        "verifier": "<核对人>",
+        "documents": [
+          {
+            "type": "rate_table",
+            "title": "<费率表文件名>",
+            "url": "<官网披露页直链>",
+            "sha256": "<下载后 sha256sum>",
+            "fetchedAt": "<YYYY-MM-DD>",
+            "tier": 1
+          }
+        ],
+        "premiumQuote": "<费率表里对应这个保费的原文片段>"
+      }
+    }
+  ],
+
+  "caveats": [
+    "<这组样本的使用限制，例如：仅含互联网渠道产品，个险渠道报价普遍更高>"
+  ],
+
+  "source": {
+    "verifiedAt": "<YYYY-MM-DD>",
+    "verifier": "<核对人>",
+    "scopeNote": "<样本怎么选的：哪个平台、什么时间范围、有没有渠道限制。样本量小必须写明>"
+  }
+}
