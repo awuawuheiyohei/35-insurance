@@ -1,0 +1,19 @@
+{
+  "name": "少儿险条款事实对照",
+  "short_name": "条款对照",
+  "description": "少儿意外险与百万医疗的条款客观并排对比，每个字段可溯源至官方条款原文。",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "_README": "填写模板。复制到 data/products/ 后逐字段替换。禁止在未核对条款原文的情况下提交。",
+  "_禁止事项": [
+    "禁止从第三方测评文章抄数字",
+    "禁止让 LLM 生成任何数值字段",
+    "禁止填了数据以后再补来源"
+  ],
+
+  "id": "accident-<年份>-<短标识>",
+  "name": "<保险公司备案的正式产品全称>",
+  "category": "accident",
+  "status": "on_sale",
+  "delistedOn": null,
+  "filingNo": "<条款文字编码/备案号，在人身保险产品信息库可反查>",
+  "riskLevel": "P1",
+
+  "insurer": {
+    "name": "<保险公司全称>",
+    "servicePhone": "<客服电话>",
+    "officialSite": null
+  },
+
+  "audience": { "minAge": 0, "maxAge": 17, "childEligible": true },
+
+  "premium": {
+    "currency": "CNY",
+    "unit": "元/人/年",
+    "byInsuredAge": { "0": 0, "1": 0 }
+  },
+
+  "coverage": {
+    "accident": {
+      "death": {
+        "limit": 0,
+        "regulationCap": { "applies": true, "rule": "<监管上限的条款原文表述>" }
+      },
+      "medical": {
+        "limit": 0,
+        "deductible": 0,
+        "reimburseRatio": "<条款原文表述>",
+        "outOfCatalogDrug": null,
+        "outpatientCovered": null,
+        "inHospitalDaysLimit": null
+      },
+      "hospitalizationAllowance": { "perDay": 0, "maxDays": null },
+      "specialAccidents": null
+    }
+  },
+
+  "underwriting": {
+    "guaranteedRenewalYears": null,
+    "renewalNote": null,
+    "autoRenewal": null
+  },
+
+  "healthDisclosure": {
+    "summary": null,
+    "hasCongenitalExclusion": null
+  },
+
+  "source": {
+    "verifiedAt": "<YYYY-MM-DD>",
+    "verifier": "<核对人>",
+    "documents": [
+      {
+        "type": "clause",
+        "title": "<条款文件名>",
+        "url": "<官网披露页直链>",
+        "sha256": "<下载后 sha256sum>",
+        "fetchedAt": "<YYYY-MM-DD>",
+        "tier": 1
+      },
+      {
+        "type": "rate_table",
+        "title": "<费率表文件名>",
+        "url": "<官网披露页直链>",
+        "sha256": "<下载后 sha256sum>",
+        "fetchedAt": "<YYYY-MM-DD>",
+        "tier": 1
+      }
+    ],
+    "fieldTrace": {
+      "premium.byInsuredAge": {
+        "docIndex": 1,
+        "page": null,
+        "quote": "<费率表原文片段>",
+        "tier": 1
+      },
+      "coverage.accident.death.limit": {
+        "docIndex": 0,
+        "page": 1,
+        "quote": "<条款原文片段>",
+        "tier": 1
+      }
+    }
+  }
+}

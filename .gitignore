@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# 构建产物（由 python -m insurance.build 生成）
+web/data/
+
+# 条款原文 PDF —— 不入库，避免仓库膨胀 + 版权边界
+# 需要时按 docs/02 的 sha256 从官网重新下载核对
+raw/
+*.pdf
+
+# 系统
+.DS_Store
+dist/

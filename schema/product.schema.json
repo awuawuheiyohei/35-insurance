@@ -1,0 +1,284 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://insurance.local/schema/product.schema.json",
+  "title": "保险产品数据 v1 — 仅少儿意外险 + 百万医疗",
+  "description": "本 schema 额外承担合规约束职责：additionalProperties 一律 false，因此无法表达 score / rank / recommended 等字段。这是刻意的，见 docs/01-合规边界.md §2。",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "category", "status", "insurer", "filingNo", "coverage", "premium", "source"],
+
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^(accident|medical)-[0-9]{4}-[a-z0-9-]{2,}$",
+      "description": "格式：<category>-<年份>-<短标识>，例 accident-2026-pingan-a"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 4,
+      "description": "保险公司备案的正式产品名称，禁止使用销售代称"
+    },
+    "category": { "enum": ["accident", "medical"] },
+    "status": { "enum": ["on_sale", "delisted"] },
+    "delistedOn": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "description": "停售/停用起始日期。status=delisted 时必填。停售产品必须保留在库中，不得删除。"
+    },
+    "filingNo": {
+      "type": "string",
+      "minLength": 4,
+      "description": "条款文字编码/备案号，可在人身保险产品信息库反查真伪"
+    },
+    "riskLevel": {
+      "enum": ["P1", "P2"],
+      "description": "监管产品分级，影响销售人员资质要求"
+    },
+
+    "insurer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "servicePhone"],
+      "properties": {
+        "name": { "type": "string", "minLength": 2 },
+        "servicePhone": { "type": "string", "pattern": "^[0-9\\-]{7,20}$" },
+        "officialSite": { "type": ["string", "null"], "format": "uri" }
+      }
+    },
+
+    "audience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minAge", "maxAge", "childEligible"],
+      "properties": {
+        "minAge": { "type": "integer", "minimum": 0 },
+        "maxAge": { "type": "integer", "minimum": 0 },
+        "childEligible": { "type": "boolean" }
+      }
+    },
+
+    "premium": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency", "unit", "byInsuredAge"],
+      "properties": {
+        "currency": { "const": "CNY" },
+        "unit": { "const": "元/人/年", "description": "v1 只支持一年期产品。长期险需要现金价值模型，另议。" },
+        "byInsuredAge": {
+          "type": "object",
+          "description": "投保年龄 → 年保费。键为被保险人年龄（整数，岁）。费率表原文见 source.fieldTrace['premium.byInsuredAge']",
+          "additionalProperties": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+
+    "coverage": { "type": "object" },
+
+    "underwriting": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "guaranteedRenewalYears": {
+          "enum": [0, 1, 5, 6, 15, 20],
+          "description": "保证续保年数。0 = 不保证续保。少儿百万医疗最关键字段：非保证续保的产品在孩子生病后可能无法续保。"
+        },
+        "renewalNote": {
+          "type": ["string", "null"],
+          "description": "续保条件的原文摘要，如「停售后可续保至105岁」"
+        },
+        "autoRenewal": { "type": ["boolean", "null"] }
+      }
+    },
+
+    "healthDisclosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": { "type": ["string", "null"], "description": "健康告知摘要。禁止给出能否通过的判断——那属于核保，见合规文档 §2.5" },
+        "hasCongenitalExclusion": {
+          "type": ["boolean", "null"],
+          "description": "是否明确除外先天性疾病/遗传性疾病。婴幼儿产品常见除外条款，需显著提示。"
+        }
+      }
+    },
+
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verifiedAt", "verifier", "documents", "fieldTrace"],
+      "properties": {
+        "verifiedAt": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "verifier": { "type": "string", "minLength": 1 },
+        "documents": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "title", "url", "sha256", "fetchedAt", "tier"],
+            "properties": {
+              "type": { "enum": ["clause", "rate_table", "product_brochure", "cash_value", "filing", "screenshot"] },
+              "title": { "type": "string" },
+              "url": { "type": "string", "format": "uri" },
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+              "fetchedAt": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+              "tier": { "enum": [1, 2, 3], "description": "1=官网披露 2=中保协产品库 3=官方App截图" }
+            }
+          }
+        },
+        "fieldTrace": {
+          "type": "object",
+          "minProperties": 1,
+          "description": "字段点路径 → 出处。path 用点号分隔，例 coverage.accident.medicalBenefit.limit",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["docIndex", "quote", "tier"],
+            "properties": {
+              "docIndex": { "type": "integer", "minimum": 0 },
+              "page": { "type": ["integer", "null"], "minimum": 1 },
+              "quote": { "type": "string", "minLength": 4, "description": "条款原文片段，供用户自行核对" },
+              "tier": { "enum": [1, 2, 3] }
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "allOf": [
+    {
+      "if": { "properties": { "category": { "const": "accident" } } },
+      "then": {
+        "properties": {
+          "coverage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["accident"],
+            "properties": {
+              "accident": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["death", "medical"],
+                "properties": {
+                  "death": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["limit", "regulationCap"],
+                    "properties": {
+                      "limit": { "type": "number", "description": "保额（元）" },
+                      "regulationCap": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["applies", "rule"],
+                        "properties": {
+                          "applies": { "type": "boolean" },
+                          "rule": { "type": "string", "description": "监管对未成年人身故保额累计上限的原文表述" }
+                        }
+                      }
+                    }
+                  },
+                  "medical": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["limit", "deductible", "reimburseRatio"],
+                    "properties": {
+                      "limit": { "type": "number" },
+                      "deductible": { "type": "number" },
+                      "reimburseRatio": { "type": "string", "description": "如 100% / 社保范围内100%，社保外80%" },
+                      "outOfCatalogDrug": { "type": ["boolean", "null"], "description": "是否覆盖社保外用药" },
+                      "outpatientCovered": { "type": ["boolean", "null"], "description": "门急诊是否报销（少儿高频用）" },
+                      "inHospitalDaysLimit": { "type": ["integer", "null"], "description": "单次住院报销天数上限" }
+                    }
+                  },
+                  "hospitalizationAllowance": {
+                    "type": ["object", "null"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "perDay": { "type": "number" },
+                      "maxDays": { "type": ["integer", "null"] }
+                    }
+                  },
+                  "specialAccidents": {
+                    "type": ["array", "null"],
+                    "items": { "type": "string" },
+                    "description": "额外给付类责任，如猝死、溺水、疫苗接种、特定交通"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "category": { "const": "medical" } } },
+      "then": {
+        "properties": {
+          "underwriting": {
+            "required": ["guaranteedRenewalYears"],
+            "properties": { "guaranteedRenewalYears": { "enum": [0, 1, 5, 6, 15, 20] } }
+          },
+          "coverage": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["medical"],
+            "properties": {
+              "medical": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["general", "criticalIllness", "deductible", "renewal"],
+                "properties": {
+                  "general": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["limit"],
+                    "properties": {
+                      "limit": { "type": "number" },
+                      "reimburseRatio": { "type": ["string", "null"] }
+                    }
+                  },
+                  "criticalIllness": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["limit"],
+                    "properties": {
+                      "limit": { "type": "number" },
+                      "deductibleOverride": { "type": ["number", "null"] }
+                    }
+                  },
+                  "deductible": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["amount", "scope"],
+                    "properties": {
+                      "amount": { "type": "number" },
+                      "scope": { "enum": ["annual", "per_claim", "family_shared"] }
+                    }
+                  },
+                  "renewal": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["type", "text"],
+                    "properties": {
+                      "type": { "enum": ["guaranteed_fixed", "guaranteed_limited", "not_guaranteed"] },
+                      "text": { "type": "string", "description": "条款原文表述，如「保证续保6年」" }
+                    }
+                  },
+                  "outOfCatalogDrug": { "type": ["boolean", "null"] },
+                  "specialtyDrug": { "type": ["boolean", "null"], "description": "质子重离子" },
+                  "outpatientDrugPurchase": { "type": ["boolean", "null"], "description": "院外购药" },
+                  "hospitalStayAdvance": { "type": ["boolean", "null"], "description": "住院费用垫付" },
+                  "specialWard": { "type": ["boolean", "null"], "description": "特需/国际部" },
+                  "waitingPeriodDays": { "type": ["integer", "null"] },
+                  "hospitalScope": { "type": ["string", "null"], "description": "医院范围，如「二级及以上公立医院普通部」" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

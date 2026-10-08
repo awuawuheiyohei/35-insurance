@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>少儿险条款事实对照</title>
+<meta name="description" content="少儿意外险与百万医疗的条款客观并排对比，每个字段可溯源至官方条款原文。">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <h1>少儿险条款事实对照</h1>
+    <p class="tagline">客观并排对比 · 每个字段可溯源至条款原文</p>
+    <div id="snapshot" class="snapshot"></div>
+  </div>
+</header>
+
+<div class="disclaimer-bar" role="note">
+  <div class="wrap">
+    <strong>请先读这一段：</strong><span id="disclaimer-text"></span>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <section id="empty-state" class="empty-state" hidden>
+    <h2>库内暂无数据</h2>
+    <p>产品数据尚未导入。导入流程见 <code>docs/02-数据源与溯源规范.md</code> §5。</p>
+    <p class="muted">本项目不填入任何未经核对的示例数据 —— 空库比错数据安全。</p>
+  </section>
+
+  <nav id="tabs" class="tabs" hidden>
+    <button class="tab active" data-cat="accident">少儿意外险</button>
+    <button class="tab" data-cat="medical">少儿百万医疗</button>
+  </nav>
+
+  <div id="filter-bar" class="filter-bar" hidden>
+    <label>被保险人年龄
+      <select id="age-select"></select>
+    </label>
+    <span id="age-hint" class="muted"></span>
+  </div>
+
+  <section id="table-wrap" hidden>
+    <div class="table-scroll">
+      <table id="compare">
+        <thead><tr id="head-row"></tr></thead>
+        <tbody id="body-rows"></tbody>
+      </table>
+    </div>
+    <p class="muted small">
+      产品按备案名称字典序排列。<!-- lint:ignore -->本页不提供排序、评分与筛选排名功能。
+    </p>
+  </section>
+
+  <section id="legend" class="legend" hidden>
+    <h3>怎么读这张表</h3>
+    <ul>
+      <li><b>点任意数值</b>，展开该字段的出处：来源文件、页码、条款原文片段。</li>
+      <li><span class="badge fresh">已复核</span> 60 天内核对过条款原文；
+          <span class="badge aging">待复核</span> 60–180 天；
+          <span class="badge expired">已过期</span> 超过 180 天，可能与当前条款不一致。</li>
+      <li>灰色产品为<strong>已停售</strong>，保留在库中是因为它仍有参考价值（例如用于核验他人推销）。</li>
+      <li>本页不做优劣判断，也不提供投保入口。关键决策请回到条款原文和持牌机构。</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <h4>免责声明</h4>
+    <p id="footer-disclaimer"></p>
+    <p class="small muted">
+      数据来源为保险公司官网公开信息披露栏目与中国保险行业协会人身保险产品信息库。
+      本工具为条款信息的聚合展示，不构成保险销售行为，不提供产品倾向性意见。
+    </p>
+  </div>
+</footer>
+
+<div id="trace-popover" class="popover" hidden>
+  <div class="popover-inner">
+    <button class="popover-close" aria-label="关闭">×</button>
+    <h4 id="popover-path"></h4>
+    <div id="popover-body"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

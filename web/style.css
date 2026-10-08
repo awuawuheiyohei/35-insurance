@@ -1,0 +1,178 @@
+/* 少儿险条款事实对照 — 移动优先 */
+
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #1d4ed8;
+  --fresh: #059669;
+  --aging: #b45309;
+  --expired: #b91c1c;
+  --delisted: #94a3b8;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+               "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+
+/* --- header --- */
+.site-header { background: #0f172a; color: #fff; padding: 28px 0 22px; }
+.site-header h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: .5px; }
+.tagline { margin: 0; color: #94a3b8; font-size: 14px; }
+.snapshot { margin-top: 10px; font-size: 13px; color: #cbd5e1; }
+
+/* --- disclaimer --- */
+.disclaimer-bar {
+  background: #fef3c7; border-bottom: 1px solid #fcd34d;
+  padding: 12px 0; font-size: 13.5px; color: #78350f;
+}
+
+/* --- tabs --- */
+.tabs { display: flex; gap: 8px; margin: 24px 0 16px; }
+.tab {
+  padding: 9px 18px; border: 1px solid var(--border); background: var(--surface);
+  border-radius: var(--radius); cursor: pointer; font-size: 14.5px; color: var(--text);
+}
+.tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* --- filter --- */
+.filter-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 14px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px;
+}
+.filter-bar select {
+  padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 14px; background: #fff;
+}
+.muted { color: var(--muted); }
+.small { font-size: 12.5px; }
+
+/* --- table --- */
+.table-scroll {
+  overflow-x: auto; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+table { border-collapse: collapse; width: 100%; min-width: 720px; }
+
+th, td {
+  border-bottom: 1px solid var(--border);
+  padding: 10px 12px; text-align: left; vertical-align: top; font-size: 14px;
+}
+thead th {
+  position: sticky; top: 0; background: #f1f5f9; z-index: 2;
+  font-weight: 600; border-bottom: 2px solid #cbd5e1;
+}
+tbody th {
+  position: sticky; left: 0; background: #f8fafc; z-index: 1;
+  font-weight: 500; white-space: nowrap; min-width: 120px;
+  border-right: 1px solid var(--border);
+}
+tr.group-row th {
+  background: #e2e8f0; font-weight: 600; font-size: 13px;
+  color: #334155; letter-spacing: .5px;
+}
+tr.field-row:hover td { background: #f8fafc; }
+tr.critical-row th { border-left: 3px solid #dc2626; }
+tr.critical-row th::after {
+  content: "关键项"; display: inline-block; margin-left: 6px;
+  font-size: 10px; background: #fee2e2; color: #b91c1c;
+  padding: 1px 5px; border-radius: 3px; vertical-align: middle;
+}
+
+/* --- cell values --- */
+.value {
+  cursor: pointer; border-bottom: 1px dotted var(--accent);
+  display: inline-block; min-width: 30px;
+}
+.value.no-trace { border-bottom: none; cursor: default; color: var(--muted); }
+.value.yes { color: var(--fresh); font-weight: 600; }
+.value.no { color: var(--muted); }
+.value.undefined { color: #cbd5e1; }
+
+/* --- product headers --- */
+.prod-head { min-width: 150px; }
+.prod-name { font-size: 13px; font-weight: 600; line-height: 1.4; }
+.prod-insurer { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.prod-meta { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+.delisted-mark {
+  display: inline-block; background: var(--delisted); color: #fff;
+  font-size: 10px; padding: 1px 5px; border-radius: 3px; margin-top: 4px;
+}
+
+/* --- badges --- */
+.badge {
+  display: inline-block; font-size: 10.5px; padding: 1px 6px;
+  border-radius: 10px; border: 1px solid;
+}
+.badge.fresh   { color: var(--fresh);   border-color: #a7f3d0; background: #ecfdf5; }
+.badge.aging   { color: var(--aging);   border-color: #fcd34d; background: #fffbeb; }
+.badge.expired { color: var(--expired); border-color: #fecaca; background: #fef2f2; }
+
+/* --- legend --- */
+.legend {
+  margin: 24px 0; padding: 16px 18px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.legend h3 { margin: 0 0 10px; font-size: 15px; }
+.legend ul { margin: 0; padding-left: 20px; }
+.legend li { margin-bottom: 6px; font-size: 14px; }
+
+/* --- empty --- */
+.empty-state {
+  margin: 40px auto; padding: 32px; text-align: center;
+  background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius);
+}
+.empty-state h2 { margin: 0 0 8px; font-size: 17px; }
+.empty-state code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+/* --- popover --- */
+.popover {
+  position: fixed; inset: 0; background: rgba(15,23,42,.5);
+  display: flex; align-items: flex-end; justify-content: center; z-index: 100;
+}
+.popover-inner {
+  background: var(--surface); border-radius: 14px 14px 0 0;
+  padding: 20px 20px 28px; max-width: 640px; width: 100%;
+  max-height: 78vh; overflow-y: auto; position: relative;
+}
+.popover-close {
+  position: absolute; top: 12px; right: 16px; border: none;
+  background: none; font-size: 26px; cursor: pointer; color: var(--muted); line-height: 1;
+}
+.popover-inner h4 { margin: 0 32px 12px 0; font-size: 15px; }
+.trace-doc { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.trace-quote {
+  background: #f8fafc; border-left: 3px solid var(--accent);
+  padding: 12px 14px; font-size: 14px; line-height: 1.75; white-space: pre-wrap;
+  border-radius: 0 6px 6px 0;
+}
+.trace-link { display: inline-block; margin-top: 12px; font-size: 13px; color: var(--accent); }
+.trace-tier {
+  display: inline-block; margin-left: 6px; font-size: 10.5px;
+  background: #e2e8f0; color: #475569; padding: 1px 6px; border-radius: 3px;
+}
+
+/* --- footer --- */
+.site-footer { margin-top: 40px; padding: 28px 0 40px; background: #0f172a; color: #cbd5e1; }
+.site-footer h4 { margin: 0 0 8px; color: #fff; font-size: 14px; }
+.site-footer p { font-size: 13px; margin: 0 0 8px; }
+
+@media (max-width: 640px) {
+  body { font-size: 14px; }
+  .site-header h1 { font-size: 19px; }
+  th, td { padding: 8px 10px; font-size: 13px; }
+}
