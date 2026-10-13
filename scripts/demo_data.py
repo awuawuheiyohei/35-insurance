@@ -21,7 +21,7 @@ sys.path[:0] = [str(REPO / "src"), str(REPO / "tests")]
 
 from test_validation import accident_product, medical_product  # noqa: E402
 
-from insurance.paths import DATA_DIR  # noqa: E402
+from insurance.paths import DATA_DIR, WEB_DIR  # noqa: E402
 from insurance.compliance import BANNED_WORDS  # noqa: E402
 
 
@@ -63,9 +63,30 @@ def build() -> list[Path]:
 
 
 def clean() -> list[Path]:
-    removed = sorted(DATA_DIR.glob("*-demo-*.json")) if DATA_DIR.exists() else []
-    for p in removed:
-        p.unlink()
+    """清理演示数据，以及由它构建出来的前端产物。
+
+    两处都要清，缺一不可：
+
+    - ``data/products/*-demo-*.json``：演示数据源文件。
+    - ``web/data/``：``insurance.build`` 的输出目录。前端直接读这里的
+      JSON，演示数据的产物留在这里就等于演示数据还在生效。
+
+    之前只清前者，清完数据源后 ``web/data/products.json`` 仍带着
+    【示例·虚构】的产品留在磁盘上，正是"演示数据用完必须清理"（红线 2）
+    没被真正执行的样子。
+
+    该目录全部内容都是 build 生成的可再生文件；如果里面混有真实数据的
+    产物，一并清掉也无损失，重新跑 ``insurance.build`` 即可。
+    """
+    removed: list[Path] = []
+    if DATA_DIR.exists():
+        removed += sorted(DATA_DIR.glob("*-demo-*.json"))
+    out_dir = WEB_DIR / "data"
+    if out_dir.exists():
+        for p in sorted(out_dir.iterdir()):
+            if p.is_file():
+                p.unlink()
+                removed.append(p)
     return removed
 
 
